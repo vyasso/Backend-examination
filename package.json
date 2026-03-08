@@ -4,14 +4,19 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "bun --hot src/index.ts",
-    "start": "NODE_ENV=production bun src/index.ts",
-    "build": "bun run build.ts"
+    "dev": "bun --hot src/app.js",
+    "start": "NODE_ENV=production bun src/app.js",
+    "test-db": "bun test-db.js"
   },
   "dependencies": {
+    "@fastify/cors": "^11.2.0",
+    "@fastify/helmet": "^13.0.2",
+    "bcrypt": "^6.0.0",
     "bun-plugin-tailwind": "^0.1.2",
+    "cors": "^2.8.6",
     "dotenv": "^17.3.1",
     "fastify": "^5.8.2",
+    "helmet": "^8.1.0",
     "pg": "^8.20.0",
     "react": "^19",
     "react-dom": "^19",
