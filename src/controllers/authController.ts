@@ -11,7 +11,7 @@ export const registerUser = async (request: FastifyRequest, reply: FastifyReply)
 };
 
 // Inloggning
-export const loginUser = async function(this: any, request: FastifyRequest, reply: FastifyReply) {
+export const loginUser = async function (this: any, request: FastifyRequest, reply: FastifyReply) {
   const body = request.body as any;
 
   const user = await userRepository.findUserByEmail(body.email);
@@ -36,7 +36,7 @@ export const loginUser = async function(this: any, request: FastifyRequest, repl
 };
 
 // Refresh
-export const refreshTokenUser = async function(request: FastifyRequest, reply: FastifyReply) {
+export const refreshTokenUser = async function (request: FastifyRequest, reply: FastifyReply) {
   const body = request.body as any;
 
   if (!body.refreshToken) {
@@ -46,7 +46,7 @@ export const refreshTokenUser = async function(request: FastifyRequest, reply: F
   try {
     const decoded = request.server.jwt.verify(body.refreshToken) as any;
     const newAccessToken = request.server.jwt.sign(
-      { id: decoded.id }, 
+      { id: decoded.id },
       { expiresIn: '15m' }
     );
     return reply.send({ accessToken: newAccessToken });
