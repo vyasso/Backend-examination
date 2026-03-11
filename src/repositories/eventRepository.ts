@@ -1,10 +1,10 @@
 import pool from '../config/db.js';
 
 // Skapa event (Create)
-export const createEvent = async (title, description, date) => {
+export const createEvent = async (title, description, date, created_by) => {
   const result = await pool.query(
-    'INSERT INTO events (title, description, date) VALUES ($1, $2, $3) RETURNING *',
-    [title, description, date]
+    'INSERT INTO events (title, description, event_date, created_by) VALUES ($1, $2, $3, $4) RETURNING *',
+    [title, description, date, created_by]
   );
   return result.rows[0];
 };

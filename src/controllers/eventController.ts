@@ -3,7 +3,8 @@ import * as eventRepository from '../repositories/eventRepository.js';
 // Skapa
 export const create = async (request, reply) => {
   const { title, description, date } = request.body;
-  const event = await eventRepository.createEvent(title, description, date);
+  const created_by = request.user.id;
+  const event = await eventRepository.createEvent(title, description, date, created_by);
   return reply.status(201).send(event);
 };
 
