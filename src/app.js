@@ -1,24 +1,35 @@
 import Fastify from 'fastify';
 import helmet from '@fastify/helmet';
 import cors from '@fastify/cors';
+import rateLimit from '@fastify/rate-limit';
 import fastifyJwt from '@fastify/jwt';
 import pool from './config/db.js';
-import { registerUser, loginUser } from './controllers/authController.js';
 
-const fastify = Fastify({
-  logger: true 
-});
+// Controllers
+import { registerUser, loginUser, refreshTokenUser } from './controllers/authController.js';
+import { create, getAll, update, remove } from './controllers/eventController.js';
+import { bookEvent, getMyEvents, cancelBooking } from './controllers/registrationController.js';
+
+// Middleware & Validering
+import { authenticate, isAdmin } from './middleware/auth.js';
+import { registerSchema, createEventSchema } from './schemas/validation.js';
+
+const fastify = Fastify({ logger: true });
 
 // Säkerhet
 await fastify.register(helmet);
 await fastify.register(cors);
+await fastify.register(rateLimit, {
+  max: 100, // Max 100 anrop
+  timeWindow: '1 minute' // per minut per IP
+});
 
-// JWT setup
+// JWT
 fastify.register(fastifyJwt, {
   secret: process.env.JWT_SECRET || 'super-secret-key'
 });
 
-// Health check
+// DB-koll
 fastify.get('/api/health', async (request, reply) => {
   try {
     const dbCheck = await pool.query('SELECT NOW()');
@@ -28,11 +39,36 @@ fastify.get('/api/health', async (request, reply) => {
   }
 });
 
-// Auth routes
-fastify.post('/api/auth/register', registerUser);
+// Användare (Resurs 1)
+fastify.post('/api/auth/register', registerSchema, registerUser);
 fastify.post('/api/auth/login', loginUser);
+fastify.post('/api/auth/refresh', refreshTokenUser); // Ny route för att förnya token
 
-// Start
+// Events (Resurs 2) - Validering + Admin-krav på POST/PUT
+fastify.get('/api/events', getAll);
+fastify.post('/api/events', { schema: createEventSchema.schema, preHandler: [authenticate, isAdmin] }, create);
+fastify.put('/api/events/:id', { schema: createEventSchema.schema, preHandler: [authenticate, isAdmin] }, update);
+fastify.delete('/api/events/:id', { preHandler: [authenticate, isAdmin] }, remove);
+
+// Bokningar (Resurs 3) - Inloggning krävs
+fastify.post('/api/registrations', { preHandler: [authenticate] }, bookEvent);
+fastify.get('/api/users/me/registrations', { preHandler: [authenticate] }, getMyEvents);
+fastify.delete('/api/registrations', { preHandler: [authenticate] }, cancelBooking);
+
+// Global felhanterare (fastify inbyggda)
+fastify.setErrorHandler((error, request, reply) => {
+  fastify.log.error(error); // Loggar felet
+
+  const statusCode = error.statusCode || 500;
+  
+  reply.status(statusCode).send({
+    success: false,
+    statusCode: statusCode,
+    error: statusCode === 500 ? 'Ett internt serverfel uppstod' : error.message
+  });
+});
+
+// Starta server
 const start = async () => {
   try {
     await fastify.listen({ port: 3000, host: '0.0.0.0' });
