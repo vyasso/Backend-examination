@@ -1,4 +1,4 @@
-import * as eventRepository from '../repositories/eventRepository.js';
+import * as eventRepository from '../repositories/eventRepository.ts';
 
 // Skapa
 export const create = async (request, reply) => {

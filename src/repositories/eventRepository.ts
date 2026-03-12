@@ -1,4 +1,4 @@
-import pool from '../config/db.js';
+import pool from '../config/db.ts';
 
 // Skapa event (Create)
 export const createEvent = async (title, description, date, created_by) => {

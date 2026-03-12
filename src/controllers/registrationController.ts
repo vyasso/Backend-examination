@@ -1,4 +1,4 @@
-import * as repo from '../repositories/registrationRepository.js';
+import * as repo from '../repositories/registrationRepository.ts';
 
 // Boka event
 export const bookEvent = async (request, reply) => {

@@ -1,4 +1,4 @@
-import pool from '../config/db.js';
+import pool from '../config/db.ts';
 
 export const createUser = async (email, passwordHash) => {
   const query = 'INSERT INTO users (email, password_hash) VALUES ($1, $2) RETURNING id, email, role';

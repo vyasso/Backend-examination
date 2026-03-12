@@ -1,4 +1,4 @@
-import pool from '../config/db.js';
+import pool from '../config/db.ts';
 
 // Boka event (Create)
 export const createRegistration = async (user_id, event_id) => {
